@@ -1,0 +1,21 @@
+services:
+  api:
+    image: sujalsa/quiz-api:latest
+    env_file:
+      - ./quiz-app-server/.env
+    environment:
+      NODE_ENV: production
+      PORT: "5000"
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  client:
+    image: sujalsa/quiz-client:latest
+    depends_on:
+      - api
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    restart: unless-stopped

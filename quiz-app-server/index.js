@@ -35,6 +35,10 @@ const extractJson = (text) => {
 
 // --- API Endpoints ---
 
+app.get('/healthz', (_req, res) => {
+  res.json({ status: 'ok' });
+});
+
 // Endpoint 1: Generate Quiz (Updated with the cleaner)
 app.post('/generate-quiz', async (req, res) => {
     try {
