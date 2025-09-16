@@ -11,7 +11,15 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+const isProd = process.env.NODE_ENV === 'production';
+const allowed = isProd
+  ? ['http://3.108.254.28:3030']
+  : ['http://localhost:3030'];
+
+app.use(cors({
+  origin: allowed,
+  methods: ['GET','POST','OPTIONS'],
+}));
 app.use(express.json());
 
 // Initialize the Generative AI client
