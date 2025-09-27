@@ -12,12 +12,12 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 const isProd = process.env.NODE_ENV === 'production';
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // Initialize the Generative AI client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
 
 // A simple utility function to find and extract a JSON string from text
 const extractJson = (text) => {
