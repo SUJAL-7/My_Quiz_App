@@ -10,40 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2️⃣ Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 3️⃣ Build & Push API Image
       - name: Build & Push API Image
         uses: docker/build-push-action@v6
         with:
           context: ./quiz-app-server
           push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/quiz-api:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/quiz-api:${{ github.sha }}
-          platforms: linux/amd64
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/quiz-api:latest
 
-      # 4️⃣ Build & Push Client Image
       - name: Build & Push Client Image
         uses: docker/build-push-action@v6
         with:
           context: ./quiz-app-client
           push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/quiz-client:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/quiz-client:${{ github.sha }}
-          platforms: linux/amd64
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/quiz-client:latest
 
-      # 5️⃣ Deploy to EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -54,7 +43,6 @@ jobs:
           script: |
             set -e
             REPO_DIR="$HOME/My_Quiz_App"
-            IMAGE_TAG="${GITHUB_SHA}"
 
             # Clone once if not present
             if [ ! -d "$REPO_DIR/.git" ]; then
@@ -65,17 +53,12 @@ jobs:
             git checkout main
             git pull --ff-only
 
-            # Ensure .env exists
+            # Expect quiz-app-server/.env already exists (you manage it manually)
             if [ ! -f quiz-app-server/.env ]; then
-              echo "ERROR: quiz-app-server/.env missing on server."
+              echo "ERROR: quiz-app-server/.env missing on server. Create it before running containers."
               exit 1
             fi
 
-            # Pull the newly built images using SHA tag
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/quiz-api:${GITHUB_SHA}
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/quiz-client:${GITHUB_SHA}
-
-            # Update docker-compose.yml to use SHA-tagged images
-            docker compose down
+            docker compose pull
             docker compose up -d
             docker compose ps
