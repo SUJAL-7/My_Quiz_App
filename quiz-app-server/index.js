@@ -12,7 +12,7 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 const isProd = process.env.NODE_ENV === 'production';
-app.use(cors({ origin: "*" }));
+app.use(cors());
 app.use(express.json());
 
 // Initialize the Generative AI client
